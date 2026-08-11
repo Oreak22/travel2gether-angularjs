@@ -11,9 +11,11 @@ if (!fs.existsSync(dir)) {
 
 const envConfigFile = `export const environment = {
   production: true,
-  apiUrl: '${process.env.apiUrl || 'http://localhost/travel-agency-backend/api'}',
-  paystackPublicKey: '${process.env.paystackPublicKey || ''}'
+  apiUrl: '${process.env.API_URL || 'http://localhost/travel-agency-backend/api'}',
+  paystackPublicKey: '${process.env.PAYSTACK_PUBLIC_KEY || ''}'
 };
+
+export default environment;
 `;
 
 fs.writeFileSync(targetPath, envConfigFile);
