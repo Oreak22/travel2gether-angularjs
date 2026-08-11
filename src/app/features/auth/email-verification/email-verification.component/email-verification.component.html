@@ -1,0 +1,62 @@
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+  <div
+    class="bg-white w-full max-w-md p-8 rounded-2xl border border-slate-200 shadow-lg text-center space-y-6"
+  >
+    <!-- Header Icon -->
+    <div
+      class="w-12 h-12 bg-sky-100 text-[#0EA5E9] rounded-full flex items-center justify-center mx-auto"
+    >
+      <lucide-icon name="mail" class="w-6 h-6"></lucide-icon>
+    </div>
+
+    <div class="space-y-2">
+      <h2 class="text-2xl font-black text-[#0F172A]">Verify Your Email</h2>
+      <p class="text-xs text-slate-500 max-w-xs mx-auto">
+        We've sent a 6-digit confirmation code to
+        <strong class="text-slate-800">{{ email || 'your email address' }}</strong>
+      </p>
+      @if (errorMessage()) {
+        <div class="rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs px-4 py-3">
+          {{ errorMessage() }}
+        </div>
+      }
+    </div>
+
+    <!-- 6-Digit OTP Box Grid -->
+    <div class="flex justify-center space-x-2 my-4">
+      @for (digit of otpDigits; track $index) {
+        <input
+          #otpInput
+          type="text"
+          maxLength="1"
+          class="w-11 h-12 text-center text-lg font-bold bg-slate-50 border border-slate-300 rounded-lg text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:bg-white"
+          (input)="onDigitInput($event, $index)"
+          (keydown.backspace)="onBackspace($event, $index)"
+        />
+      }
+    </div>
+
+    <!-- Action Submit -->
+    <app-button
+      variant="primary"
+      [fullWidth]="true"
+      size="lg"
+      [loading]="isVerifying()"
+      (clicked)="verifyCode()"
+    >
+      Verify Code
+    </app-button>
+
+    <!-- Resend Countdown -->
+    <div class="text-xs text-slate-500">
+      Didn't receive the code?
+      @if (resendTimer() > 0) {
+        <span class="font-semibold text-slate-700">Resend in {{ resendTimer() }}s</span>
+      } @else {
+        <button (click)="restartTimer()" class="font-bold text-[#0EA5E9] hover:underline">
+          Resend Code
+        </button>
+      }
+    </div>
+  </div>
+</div>

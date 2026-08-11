@@ -1,0 +1,221 @@
+<div class="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row">
+  <!-- Mobile Top Header -->
+  <header
+    class="md:hidden bg-[#0F172A] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-md"
+  >
+    <div class="flex items-center space-x-3">
+      <button (click)="toggleMobileMenu()" class="text-slate-300 hover:text-white p-1">
+        <lucide-icon name="menu" class="w-6 h-6"></lucide-icon>
+      </button>
+      <span class="font-bold text-lg tracking-tight text-white">Journey2gether</span>
+    </div>
+    <div class="flex items-center space-x-3">
+      <button class="relative text-slate-300 hover:text-white p-1">
+        <lucide-icon name="bell" class="w-5 h-5"></lucide-icon>
+        <span class="absolute top-0 right-0 w-2 h-2 bg-[#0EA5E9] rounded-full"></span>
+      </button>
+      <img
+        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
+        alt="Admin Profile"
+        class="w-8 h-8 rounded-full border border-slate-600 object-cover"
+      />
+    </div>
+  </header>
+
+  <!-- Mobile Sidebar Overlay / Drawer Backdrop -->
+  @if (isMobileMenuOpen()) {
+    <div
+      (click)="closeMobileMenu()"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+    ></div>
+  }
+
+  <!-- Sidebar Container (Desktop Sidebar + Mobile Drawer) -->
+  <aside [class]="sidebarClasses()">
+    <div class="p-6 flex items-center justify-between border-b border-slate-800">
+      <div>
+        <h1 class="text-xl font-extrabold text-white tracking-tight">Journey2gether</h1>
+        <p class="text-xs text-sky-400 font-medium tracking-wide uppercase mt-0.5">Admin Portal</p>
+      </div>
+      <button (click)="closeMobileMenu()" class="md:hidden text-slate-400 hover:text-white">
+        <lucide-icon name="x" class="w-5 h-5"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Quick Primary Action CTA -->
+    <div class="px-4 py-4">
+      <a
+        routerLink="/admin/packages/create"
+        (click)="closeMobileMenu()"
+        class="w-full flex items-center justify-center space-x-2 bg-[#0EA5E9] hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 text-sm"
+      >
+        <lucide-icon name="plus" class="w-4 h-4"></lucide-icon>
+        <span>Create New Package</span>
+      </a>
+    </div>
+
+    <!-- Main Navigation Links -->
+    <nav class="flex-1 px-3 py-2 space-y-1">
+      @for (item of navItems; track item.route) {
+        @if (item.children?.length) {
+          <div class="rounded-xl border border-slate-800/70 bg-slate-900/40 p-1.5">
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="bg-slate-800 text-white font-semibold"
+              [routerLinkActiveOptions]="{ exact: false }"
+              (click)="closeMobileMenu()"
+              class="flex items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-slate-300 transition-colors duration-150 hover:bg-slate-800/60 hover:text-white"
+            >
+              <div class="flex items-center space-x-3">
+                <lucide-icon
+                  [name]="item.icon || 'folder'"
+                  class="w-5 h-5 text-slate-400"
+                ></lucide-icon>
+                <span>{{ item.label }}</span>
+              </div>
+              @if (item.badge) {
+                <span
+                  class="rounded-full bg-sky-500/20 px-2 py-0.5 text-xs font-semibold text-sky-300"
+                >
+                  {{ item.badge }}
+                </span>
+              }
+            </a>
+
+            <div class="mt-1 space-y-1 pl-2">
+              @for (child of item.children; track child.route) {
+                <a
+                  [routerLink]="child.route"
+                  routerLinkActive="bg-slate-800/80 text-white"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  (click)="closeMobileMenu()"
+                  class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition-colors hover:bg-slate-800/70 hover:text-slate-200"
+                >
+                  <lucide-icon [name]="child.icon || 'circle'" class="w-4 h-4"></lucide-icon>
+                  <span>{{ child.label }}</span>
+                </a>
+              }
+            </div>
+          </div>
+        } @else {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="bg-slate-800 text-white font-semibold border-l-4 border-[#0EA5E9]"
+            [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
+            (click)="closeMobileMenu()"
+            class="flex items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-slate-300 transition-colors duration-150 hover:bg-slate-800/60 hover:text-white"
+          >
+            <div class="flex items-center space-x-3">
+              <lucide-icon
+                [name]="item.icon || 'circle'"
+                class="w-5 h-5 text-slate-400"
+              ></lucide-icon>
+              <span>{{ item.label }}</span>
+            </div>
+            @if (item.badge) {
+              <span
+                class="rounded-full bg-sky-500/20 px-2 py-0.5 text-xs font-semibold text-sky-300"
+              >
+                {{ item.badge }}
+              </span>
+            }
+          </a>
+        }
+      }
+    </nav>
+
+    <!-- Sidebar Footer Links -->
+    <div class="space-y-1 border-t border-slate-800 p-4">
+      <a
+        routerLink="/admin/settings"
+        (click)="closeMobileMenu()"
+        class="flex items-center space-x-3 rounded-lg px-3.5 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
+      >
+        <lucide-icon name="settings" class="w-4 h-4"></lucide-icon>
+        <span>Settings</span>
+      </a>
+      <a
+        routerLink="/"
+        (click)="closeMobileMenu()"
+        class="flex items-center space-x-3 rounded-lg px-3.5 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
+      >
+        <!-- Replaced deprecated help-circle with circle-help / globe -->
+        <lucide-icon name="globe" class="w-4 h-4"></lucide-icon>
+        <span>Public page</span>
+      </a>
+      <button
+        (click)="logout()"
+        class="flex items-center space-x-3 rounded-lg px-3.5 py-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-800 hover:text-red-200 w-full"
+      >
+        <lucide-icon name="log-out" class="w-4 h-4"></lucide-icon>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Admin Content Area -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <!-- Desktop Header Bar -->
+    <header
+      class="hidden md:flex bg-white border-b border-slate-200 px-8 py-4 items-center justify-between sticky top-0 z-20 shadow-xs"
+    >
+      <!-- Universal Search Input -->
+      <div class="relative w-96">
+        <lucide-icon
+          name="search"
+          class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"
+        ></lucide-icon>
+        <input
+          type="text"
+          placeholder="Search packages, bookings, destinations..."
+          class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:bg-white transition-all duration-150"
+        />
+      </div>
+
+      <!-- Top Header Actions & Profile -->
+      <div class="flex items-center space-x-4">
+        <button
+          class="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+        >
+          <lucide-icon name="bell" class="w-5 h-5"></lucide-icon>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full"></span>
+        </button>
+        <button
+          class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+        >
+          <!-- Replaced grid with layout-grid -->
+          <lucide-icon name="layout-grid" class="w-5 h-5"></lucide-icon>
+        </button>
+        <div class="h-6 w-px bg-slate-200 mx-1"></div>
+        <div class="flex items-center space-x-3 cursor-pointer p-1 rounded-lg hover:bg-slate-50">
+          <img
+            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
+            alt="Admin Profile"
+            class="w-8 h-8 rounded-full border border-slate-200 object-cover"
+          />
+          <div class="text-left hidden lg:block">
+            <p class="text-xs font-semibold text-slate-800 leading-tight">Sarah Jenkins</p>
+            <p class="text-[11px] text-slate-500 leading-tight">Super Admin</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Routed Content Outlet -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Admin Layout Footer -->
+    <footer
+      class="bg-white border-t border-slate-200 px-6 py-3 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2"
+    >
+      <span>&copy; 2026 Journey2gether Travel Admin. All rights reserved.</span>
+      <div class="flex items-center space-x-4 text-slate-400">
+        <a href="#" class="hover:text-slate-600 transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-slate-600 transition-colors">Terms of Service</a>
+        <a href="#" class="hover:text-slate-600 transition-colors">API Docs</a>
+      </div>
+    </footer>
+  </div>
+</div>

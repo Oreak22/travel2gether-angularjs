@@ -1,0 +1,43 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-black text-[#0F172A]">Cloudinary Media Library</h1>
+      <p class="text-xs text-slate-500">Upload and organize tour media assets</p>
+    </div>
+    <app-button variant="primary" size="sm">
+      <lucide-icon name="cloud-upload" class="w-4 h-4 mr-1"></lucide-icon> Upload Image
+    </app-button>
+  </div>
+
+  <!-- Cloudinary Upload Zone -->
+  <div
+    class="bg-white p-8 rounded-2xl border-2 border-dashed border-slate-300 text-center space-y-3 hover:border-[#0EA5E9] cursor-pointer"
+  >
+    <div
+      class="w-12 h-12 bg-sky-100 text-[#0EA5E9] rounded-full flex items-center justify-center mx-auto"
+    >
+      <lucide-icon name="cloud-upload" class="w-6 h-6"></lucide-icon>
+    </div>
+    <div>
+      <p class="text-xs font-bold text-slate-800">Drag files here or click to browse</p>
+      <p class="text-[10px] text-slate-400">Supported formats: JPG, PNG, WEBP</p>
+    </div>
+  </div>
+
+  <!-- Assets Grid -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    @for (img of images(); track img.id) {
+      <div
+        class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs space-y-2 p-2"
+      >
+        <img [src]="img.url" [alt]="img.name" class="w-full h-32 object-cover rounded-lg" />
+        <div class="flex items-center justify-between text-[11px] px-1 text-slate-600">
+          <span class="truncate font-semibold">{{ img.name }}</span>
+          <button class="text-slate-400 hover:text-rose-600">
+            <lucide-icon name="trash-2" class="w-3.5 h-3.5"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

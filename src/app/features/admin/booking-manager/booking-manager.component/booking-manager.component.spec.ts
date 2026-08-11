@@ -1,0 +1,22 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { BookingManagerComponent } from './booking-manager.component';
+
+describe('BookingManagerComponent', () => {
+  let component: BookingManagerComponent;
+  let fixture: ComponentFixture<BookingManagerComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [BookingManagerComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(BookingManagerComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

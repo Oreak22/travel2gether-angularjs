@@ -1,0 +1,232 @@
+<div>
+  <!-- Hero Section with Floating Search Widget -->
+  <section class="relative bg-[#0F172A] text-white py-20 lg:py-28 px-4 overflow-hidden">
+    <div
+      class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600')] bg-cover bg-center"
+    ></div>
+    <div class="relative max-w-5xl mx-auto text-center space-y-6">
+      <span
+        class="bg-[#0EA5E9]/20 text-[#0EA5E9] text-xs uppercase tracking-widest font-bold px-3 py-1 rounded-full border border-[#0EA5E9]/30"
+      >
+        Explore The World Together
+      </span>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+        Unforgettable Journeys,<br class="hidden sm:inline" />
+        Crafted Perfectly For You
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto font-normal">
+        Discover handpicked tour packages, luxury getaways, and seamless itinerary management with
+        Journey2gether.
+      </p>
+
+      <!-- Floating Search Widget -->
+      <div
+        class="bg-white p-4 sm:p-6 rounded-2xl shadow-xl text-slate-800 max-w-4xl mx-auto mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4"
+      >
+        <div class="text-left">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"
+            >Destination</label
+          >
+          <div
+            class="flex items-center space-x-2 border border-slate-200 rounded-lg px-3 py-2 bg-slate-50"
+          >
+            <lucide-icon name="map-pin" class="w-4 h-4 text-[#0EA5E9]"></lucide-icon>
+            <input
+              type="text"
+              placeholder="Where to?"
+              [(ngModel)]="searchLocation"
+              class="w-full text-xs font-medium bg-transparent focus:outline-none"
+            />
+          </div>
+        </div>
+        <div class="text-left">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1"
+            >Duration</label
+          >
+          <div
+            class="flex items-center space-x-2 border border-slate-200 rounded-lg px-3 py-2 bg-slate-50"
+          >
+            <lucide-icon name="calendar" class="w-4 h-4 text-[#0EA5E9]"></lucide-icon>
+            <select
+              class="w-full text-xs font-medium bg-transparent focus:outline-none text-slate-700"
+            >
+              <option>Any Duration</option>
+              <option>3-5 Days</option>
+              <option>7-10 Days</option>
+              <option>14+ Days</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex items-end">
+          <app-button variant="accent" [fullWidth]="true" size="lg" (clicked)="onSearch()">
+            <lucide-icon name="search" class="w-4 h-4 mr-2"></lucide-icon> Search Packages
+          </app-button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Filter Pills -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex items-center space-x-3 overflow-x-auto pb-2 scrollbar-none">
+      @for (cat of categories; track cat) {
+        <button
+          class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all border"
+          [class]="
+            cat === activeCategory
+              ? 'bg-[#0F172A] text-white border-[#0F172A]'
+              : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+          "
+          (click)="selectCategory(cat)"
+        >
+          {{ cat }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- Featured Packages Grid -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- Featured Packages Feed -->
+    <section class="space-y-6">
+      <div class="text-center space-y-1">
+        <h2 class="text-2xl sm:text-3xl font-black text-[#0F172A]">Featured Tour Packages</h2>
+        <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
+          Handpicked top-rated experiences trending among travelers this season
+        </p>
+      </div>
+
+      <!-- Loading Skeleton Cards -->
+      @if (isLoading()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (item of skeletonCards; track $index) {
+            <div class="animate-pulse bg-white border border-slate-200 rounded-2xl p-4 space-y-4">
+              <div class="h-48 bg-slate-200 rounded-xl"></div>
+              <div class="space-y-2">
+                <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+                <div class="h-3 bg-slate-200 rounded w-1/2"></div>
+              </div>
+              <div class="h-10 bg-slate-200 rounded-xl"></div>
+            </div>
+          }
+        </div>
+      } @else if (errorMessage()) {
+        <div
+          class="p-6 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-2xl flex items-center justify-between"
+        >
+          <span>{{ errorMessage() }}</span>
+          <button (click)="fetchFeaturedPackages()" class="font-bold underline cursor-pointer">
+            Retry
+          </button>
+        </div>
+      } @else {
+        <!-- Package Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (pkg of featuredPackages(); track pkg.id) {
+            <app-card [hoverable]="true">
+              <div class="relative h-48 overflow-hidden rounded-t-xl">
+                <img [src]="pkg.image" [alt]="pkg.title" class="w-full h-full object-cover" />
+                <span
+                  class="absolute top-3 left-3 bg-white/90 backdrop-blur-xs text-slate-900 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-2xs"
+                >
+                  {{ pkg.duration }}
+                </span>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span class="flex items-center font-medium">
+                      <lucide-icon
+                        name="map-pin"
+                        class="w-3.5 h-3.5 mr-1 text-[#0EA5E9]"
+                      ></lucide-icon>
+                      {{ pkg.location }}
+                    </span>
+                    <span class="flex items-center text-amber-500 font-bold">
+                      <lucide-icon name="star" class="w-3.5 h-3.5 fill-current mr-1"></lucide-icon>
+                      {{ pkg.rating }}
+                    </span>
+                  </div>
+                  <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-1">
+                    {{ pkg.title }}
+                  </h3>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <div>
+                    <span class="text-xs text-slate-400 font-medium block">Starting from</span>
+                    <span class="text-lg font-black text-[#0F172A]"
+                      >${{ pkg.price | number: '1.2-2' }}</span
+                    >
+                  </div>
+                  <a [routerLink]="['/packages', pkg.id]">
+                    <app-button variant="primary" size="sm">View Details</app-button>
+                  </a>
+                </div>
+              </div>
+            </app-card>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Why Choose Us Features -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+      <div
+        class="p-6 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3 text-center sm:text-left"
+      >
+        <div
+          class="w-10 h-10 rounded-xl bg-sky-100 text-[#0EA5E9] flex items-center justify-center mx-auto sm:mx-0"
+        >
+          <lucide-icon name="shield-check" class="w-5 h-5"></lucide-icon>
+        </div>
+        <h3 class="font-bold text-slate-900 text-sm">Verified Experience</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          All travel itineraries are vetted with licensed local operators and hotels.
+        </p>
+      </div>
+
+      <div
+        class="p-6 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3 text-center sm:text-left"
+      >
+        <div
+          class="w-10 h-10 rounded-xl bg-sky-100 text-[#0EA5E9] flex items-center justify-center mx-auto sm:mx-0"
+        >
+          <lucide-icon name="credit-card" class="w-5 h-5"></lucide-icon>
+        </div>
+        <h3 class="font-bold text-slate-900 text-sm">Instant Paystack Checkout</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Secure multi-currency transactions backed by instant digital verification receipts.
+        </p>
+      </div>
+
+      <div
+        class="p-6 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3 text-center sm:text-left"
+      >
+        <div
+          class="w-10 h-10 rounded-xl bg-sky-100 text-[#0EA5E9] flex items-center justify-center mx-auto sm:mx-0"
+        >
+          <lucide-icon name="headphones" class="w-5 h-5"></lucide-icon>
+        </div>
+        <h3 class="font-bold text-slate-900 text-sm">24/7 Dedicated Support</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Our travel agents are available around the clock to assist with booking changes.
+        </p>
+      </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <section class="bg-[#0F172A] text-white rounded-3xl p-8 sm:p-12 text-center space-y-6">
+      <div class="max-w-2xl mx-auto space-y-2">
+        <h2 class="text-2xl sm:text-3xl font-black">Ready to Start Your Next Adventure?</h2>
+        <p class="text-xs sm:text-sm text-slate-400">
+          Join thousands of happy travelers exploring incredible places worldwide.
+        </p>
+      </div>
+      <a routerLink="/packages" class="inline-block">
+        <app-button variant="accent" size="md">Explore All Packages</app-button>
+      </a>
+    </section>
+  </section>
+</div>

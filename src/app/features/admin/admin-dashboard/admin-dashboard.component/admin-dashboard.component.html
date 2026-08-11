@@ -1,0 +1,109 @@
+<div class="space-y-8">
+  <!-- Top Title & Quick Actions Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black text-[#0F172A]">Dashboard Overview</h1>
+      <p class="text-xs text-slate-500">
+        Welcome back, Sarah. Here is what is happening across Journey2gether today.
+      </p>
+    </div>
+    <div class="flex items-center space-x-3">
+      <a routerLink="/admin/packages/create">
+        <app-button variant="accent" size="sm">
+          <lucide-icon name="plus" class="w-4 h-4 mr-1"></lucide-icon> New Package
+        </app-button>
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Summary Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    @for (stat of stats(); track stat.label) {
+      <app-card>
+        <div class="p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{
+              stat.label
+            }}</span>
+            <div [class]="stat.iconBg + ' p-2 rounded-lg text-white'">
+              <lucide-icon [name]="stat.icon" class="w-4 h-4"></lucide-icon>
+            </div>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <span class="text-2xl font-black text-[#0F172A]">{{ stat.value }}</span>
+            <span
+              [class]="
+                stat.isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'
+              "
+              class="text-[11px] font-bold px-2 py-0.5 rounded-full"
+            >
+              {{ stat.change }}
+            </span>
+          </div>
+        </div>
+      </app-card>
+    }
+  </div>
+
+  <!-- Recent Bookings Table Panel -->
+  <div
+    class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden space-y-4 p-6"
+  >
+    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-[#0F172A]">Recent Bookings</h2>
+        <p class="text-xs text-slate-500">
+          Latest reservations placed across all public travel packages
+        </p>
+      </div>
+      <a routerLink="/admin/bookings" class="text-xs font-bold text-[#0EA5E9] hover:underline"
+        >View All Bookings</a
+      >
+    </div>
+
+    <!-- Table View -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead
+          class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider font-bold border-b border-slate-200"
+        >
+          <tr>
+            <th class="py-3 px-4">Booking ID</th>
+            <th class="py-3 px-4">Customer</th>
+            <th class="py-3 px-4">Package Name</th>
+            <th class="py-3 px-4">Departure</th>
+            <th class="py-3 px-4">Amount</th>
+            <th class="py-3 px-4">Status</th>
+            <th class="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          @for (booking of recentBookings(); track booking.id) {
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-3.5 px-4 font-bold text-slate-900">#{{ booking.id }}</td>
+              <td class="py-3.5 px-4">
+                <p class="font-bold text-slate-900">{{ booking.customerName }}</p>
+                <p class="text-[10px] text-slate-400">{{ booking.customerEmail }}</p>
+              </td>
+              <td class="py-3.5 px-4 font-medium">{{ booking.packageName }}</td>
+              <td class="py-3.5 px-4 text-slate-500">{{ booking.departureDate }}</td>
+              <td class="py-3.5 px-4 font-black text-slate-900">\${{ booking.amount }}</td>
+              <td class="py-3.5 px-4">
+                <app-badge [variant]="statusVariant(booking.status)">{{
+                  booking.status
+                }}</app-badge>
+              </td>
+              <td class="py-3.5 px-4 text-right">
+                <button
+                  class="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-100"
+                >
+                  <lucide-icon name="ellipsis" class="w-4 h-4"></lucide-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

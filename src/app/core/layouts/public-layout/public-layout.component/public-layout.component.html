@@ -1,0 +1,349 @@
+<div class="min-h-screen flex flex-col bg-[#F8FAFC]">
+  <!-- Sticky Navigation Bar -->
+  <header
+    class="bg-white/95 border-b border-slate-200 sticky top-0 z-40 shadow-[0_12px_35px_-20px_rgba(15,23,42,0.25)] backdrop-blur"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center space-x-2">
+        <div
+          class="w-8 h-8 rounded-lg bg-[#0F172A] flex items-center justify-center text-[#0EA5E9]"
+        >
+          <lucide-icon name="compass" class="w-5 h-5"></lucide-icon>
+        </div>
+        <span class="text-xl font-black text-[#0F172A] tracking-tight">Journey2gether</span>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-1 text-sm font-semibold text-slate-600">
+        <a
+          routerLink="/"
+          routerLinkActive="text-[#0EA5E9]"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="rounded-full px-3 py-2 transition-all hover:bg-slate-50 hover:text-[#0EA5E9]"
+        >
+          Explore
+        </a>
+
+        <div
+          class="relative"
+          (mouseenter)="openDropdown('packages')"
+          (mouseleave)="scheduleDropdownClose()"
+        >
+          <div class="flex items-center">
+            <a
+              routerLink="/packages"
+              routerLinkActive="text-[#0EA5E9] bg-sky-50 shadow-sm"
+              [routerLinkActiveOptions]="{ exact: false }"
+              class="flex items-center gap-2 rounded-full px-3 py-2 transition-all hover:bg-slate-50 hover:text-[#0EA5E9]"
+              (click)="closeDropdowns()"
+            >
+              <span>Packages</span>
+            </a>
+            <button
+              type="button"
+              (click)="toggleDropdown('packages')"
+              class="ml-1 rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#0EA5E9]"
+              aria-label="Toggle packages menu"
+            >
+              <lucide-icon
+                [name]="activeDropdown() === 'packages' ? 'chevron-up' : 'chevron-down'"
+                class="w-4 h-4"
+              ></lucide-icon>
+            </button>
+          </div>
+
+          @if (activeDropdown() === 'packages') {
+            <div
+              class="absolute left-0 top-full mt-2 w-[28rem] bg-white p-4 shadow-lg border-t border-slate-100"
+              (mouseenter)="cancelDropdownClose()"
+              (mouseleave)="scheduleDropdownClose()"
+            >
+              <div class="mb-3 flex items-center justify-between pb-2">
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-900">Packages</h3>
+                  <p class="mt-1 text-xs text-slate-500">Explore curated trips and offers</p>
+                </div>
+                <div class="text-slate-400">
+                  <lucide-icon name="sparkles" class="w-5 h-5"></lucide-icon>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <a
+                  routerLink="/packages"
+                  (click)="closeDropdowns()"
+                  class="flex items-center gap-3 rounded px-3 py-2 hover:bg-slate-50 transition-colors"
+                >
+                  <div
+                    class="w-9 h-9 flex items-center justify-center bg-sky-50 text-sky-500 rounded"
+                  >
+                    <lucide-icon name="compass" class="w-4 h-4"></lucide-icon>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-900">Browse all packages</p>
+                    <p class="text-xs text-slate-500">Handpicked itineraries</p>
+                  </div>
+                </a>
+
+                <a
+                  routerLink="/destinations"
+                  (click)="closeDropdowns()"
+                  class="flex items-center gap-3 rounded px-3 py-2 hover:bg-slate-50 transition-colors"
+                >
+                  <div
+                    class="w-9 h-9 flex items-center justify-center bg-emerald-50 text-emerald-500 rounded"
+                  >
+                    <lucide-icon name="map-pin" class="w-4 h-4"></lucide-icon>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-900">Popular destinations</p>
+                    <p class="text-xs text-slate-500">Top places & guides</p>
+                  </div>
+                </a>
+
+                <a
+                  routerLink="/my-bookings"
+                  (click)="closeDropdowns()"
+                  class="flex items-center gap-3 rounded px-3 py-2 hover:bg-slate-50 transition-colors"
+                >
+                  <div
+                    class="w-9 h-9 flex items-center justify-center bg-violet-50 text-violet-500 rounded"
+                  >
+                    <lucide-icon name="calendar-check" class="w-4 h-4"></lucide-icon>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-900">My bookings</p>
+                    <p class="text-xs text-slate-500">Manage reservations</p>
+                  </div>
+                </a>
+
+                <a
+                  routerLink="/packages"
+                  (click)="closeDropdowns()"
+                  class="flex items-center gap-3 rounded px-3 py-2 hover:bg-slate-50 transition-colors"
+                >
+                  <div
+                    class="w-9 h-9 flex items-center justify-center bg-amber-50 text-amber-500 rounded"
+                  >
+                    <lucide-icon name="star" class="w-4 h-4"></lucide-icon>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-900">Special offers</p>
+                    <p class="text-xs text-slate-500">Limited-time deals</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          }
+        </div>
+
+        <a
+          routerLink="/destinations"
+          routerLinkActive="text-[#0EA5E9]"
+          [routerLinkActiveOptions]="{ exact: false }"
+          class="rounded-full px-3 py-2 transition-all hover:bg-slate-50 hover:text-[#0EA5E9]"
+        >
+          Destinations
+        </a>
+        <a
+          routerLink="/my-bookings"
+          routerLinkActive="text-[#0EA5E9]"
+          [routerLinkActiveOptions]="{ exact: false }"
+          class="rounded-full px-3 py-2 transition-all hover:bg-slate-50 hover:text-[#0EA5E9]"
+        >
+          My Bookings
+        </a>
+        @if (isAdmin()) {
+          <a
+            routerLink="/admin/dashboard"
+            routerLinkActive="text-[#0EA5E9]"
+            [routerLinkActiveOptions]="{ exact: false }"
+            class="rounded-full px-3 py-2 transition-all hover:bg-slate-50 hover:text-[#0EA5E9]"
+          >
+            Admin
+          </a>
+        }
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="hidden md:flex items-center space-x-4">
+        @if (!isAuthenticated()) {
+          <a
+            routerLink="/auth"
+            routerLinkActive="text-[#0F172A]"
+            [routerLinkActiveOptions]="{ exact: false }"
+            class="px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:text-[#0F172A]"
+          >
+            Sign In
+          </a>
+        } @else if (isAuthenticated()) {
+          <button
+            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-red-800"
+            (click)="logout()"
+          >
+            Log out
+          </button>
+        }
+        <a
+          routerLink="/packages"
+          class="rounded-lg bg-[#0F172A] px-4 py-2 text-sm font-medium text-white transition-all hover:bg-slate-800"
+        >
+          Book Now
+        </a>
+      </div>
+
+      <!-- Mobile Hamburger Menu Button -->
+      <button (click)="toggleMobileMenu()" class="md:hidden p-2 text-slate-700">
+        <lucide-icon [name]="isMobileMenuOpen() ? 'x' : 'menu'" class="w-6 h-6"></lucide-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer Overlay -->
+  @if (isMobileMenuOpen()) {
+    <div
+      class="md:hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs"
+      (click)="closeMobileMenu()"
+    >
+      <div
+        class="flex h-full w-4/5 max-w-sm flex-col justify-between bg-white p-6 shadow-xl"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b pb-4">
+            <span class="text-lg font-bold text-[#0F172A]">Journey2gether</span>
+            <button (click)="closeMobileMenu()" class="text-slate-500">
+              <lucide-icon name="x" class="w-5 h-5"></lucide-icon>
+            </button>
+          </div>
+          <nav class="flex flex-col space-y-4 text-base font-semibold text-slate-700">
+            <a
+              routerLink="/"
+              (click)="closeMobileMenu()"
+              class="rounded-xl px-3 py-2 hover:bg-slate-50 hover:text-[#0EA5E9]"
+              >Explore</a
+            >
+            <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
+              <a
+                routerLink="/packages"
+                (click)="closeMobileMenu()"
+                class="font-semibold text-slate-800 hover:text-[#0EA5E9]"
+                >Packages</a
+              >
+              <div class="mt-2 space-y-2 pl-3 text-sm text-slate-600">
+                <a
+                  routerLink="/packages"
+                  (click)="closeMobileMenu()"
+                  class="block rounded-lg px-2 py-1.5 hover:bg-white hover:text-[#0EA5E9]"
+                  >Browse all packages</a
+                >
+                <a
+                  routerLink="/destinations"
+                  (click)="closeMobileMenu()"
+                  class="block rounded-lg px-2 py-1.5 hover:bg-white hover:text-[#0EA5E9]"
+                  >Popular destinations</a
+                >
+                <a
+                  routerLink="/my-bookings"
+                  (click)="closeMobileMenu()"
+                  class="block rounded-lg px-2 py-1.5 hover:bg-white hover:text-[#0EA5E9]"
+                  >My bookings</a
+                >
+              </div>
+            </div>
+            <a
+              routerLink="/destinations"
+              (click)="closeMobileMenu()"
+              class="rounded-xl px-3 py-2 hover:bg-slate-50 hover:text-[#0EA5E9]"
+              >Destinations</a
+            >
+            <a
+              routerLink="/my-bookings"
+              (click)="closeMobileMenu()"
+              class="rounded-xl px-3 py-2 hover:bg-slate-50 hover:text-[#0EA5E9]"
+              >My Bookings</a
+            >
+          </nav>
+        </div>
+        <div class="space-y-3 border-t border-slate-100 pt-6">
+          @if (!isAuthenticated()) {
+            <a
+              routerLink="/auth"
+              (click)="closeMobileMenu()"
+              class="block w-full rounded-lg bg-[#0F172A] py-2.5 text-center text-sm font-semibold text-white"
+            >
+              Sign In
+            </a>
+          } @else if (isAuthenticated()) {
+            <button
+              (click)="logout(); closeMobileMenu()"
+              class="block w-full rounded-lg bg-red-600 py-2.5 text-center text-sm font-semibold text-white hover:bg-red-800"
+            >
+              Log out
+            </button>
+          }
+          <a
+            routerLink="/packages"
+            (click)="closeMobileMenu()"
+            class="block w-full rounded-lg bg-[#0F172A] py-2.5 text-center text-sm font-semibold text-white"
+          >
+            Explore Packages
+          </a>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Page Content Outlet -->
+  <main class="flex-1">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Public Footer -->
+  <footer class="bg-[#0F172A] text-slate-300 py-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <h3 class="text-white text-lg font-bold mb-3">Journey2gether</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Curating unforgettable Group & Solo travel experiences with end-to-end itinerary
+          management.
+        </p>
+      </div>
+      <div>
+        <h4 class="text-white text-sm font-semibold mb-3">Quick Links</h4>
+        <ul class="space-y-2 text-xs">
+          <li><a routerLink="/packages" class="hover:text-white">Explore Packages</a></li>
+          <li><a routerLink="/destinations" class="hover:text-white">Popular Destinations</a></li>
+          <li><a routerLink="/my-bookings" class="hover:text-white">Manage Bookings</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white text-sm font-semibold mb-3">Support</h4>
+        <ul class="space-y-2 text-xs">
+          <li><a href="#" class="hover:text-white">Help Center</a></li>
+          <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+          <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white text-sm font-semibold mb-3">Stay Connected</h4>
+        <p class="text-xs text-slate-400 mb-3">
+          Subscribe for exclusive package deals and travel guides.
+        </p>
+        <div class="flex">
+          <input
+            type="email"
+            placeholder="Enter email"
+            class="bg-slate-800 text-xs text-white px-3 py-2 rounded-l-lg focus:outline-none w-full"
+          />
+          <button
+            class="bg-[#0EA5E9] text-white text-xs px-3 py-2 rounded-r-lg font-medium hover:bg-sky-600"
+          >
+            Join
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,66 @@
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+  <!-- State A: Processing Payment Overlay -->
+  @if (isProcessing()) {
+    <div
+      class="bg-white p-8 rounded-2xl border border-slate-200 shadow-lg text-center space-y-4 max-w-sm w-full"
+    >
+      <div
+        class="w-12 h-12 border-4 border-[#0EA5E9] border-t-transparent rounded-full animate-spin mx-auto"
+      ></div>
+      <h2 class="text-lg font-bold text-slate-900">Processing Payment</h2>
+      <p class="text-xs text-slate-500">
+        Please do not close or refresh this window while we verify with Paystack...
+      </p>
+    </div>
+  }
+
+  <!-- State B: Success Confirmation Card -->
+  @else {
+    <div
+      class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl max-w-md w-full text-center space-y-6"
+    >
+      <div
+        class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto"
+      >
+        <lucide-icon name="check-circle-2" class="w-8 h-8"></lucide-icon>
+      </div>
+
+      <div class="space-y-1">
+        <h2 class="text-2xl font-black text-[#0F172A]">Booking Confirmed!</h2>
+        <p class="text-xs text-slate-500">
+          Your reservation code is <strong class="text-slate-800">J2G-882910</strong>
+        </p>
+      </div>
+
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-500">Package:</span>
+          <span class="font-bold text-slate-800">Santorini Sunset Escape</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Dates:</span>
+          <span class="font-bold text-slate-800">Oct 12 - Oct 17, 2026</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Guests:</span>
+          <span class="font-bold text-slate-800">2 Adults</span>
+        </div>
+        <div class="flex justify-between pt-2 border-t border-slate-200 text-sm font-black">
+          <span>Paid Amount:</span>
+          <span class="text-emerald-600">$2,857.80</span>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <a routerLink="/my-bookings" class="block">
+          <app-button variant="primary" [fullWidth]="true" size="lg">Go to My Bookings</app-button>
+        </a>
+        <button
+          class="w-full border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center"
+        >
+          <lucide-icon name="download" class="w-4 h-4 mr-2"></lucide-icon> Download PDF Receipt
+        </button>
+      </div>
+    </div>
+  }
+</div>
