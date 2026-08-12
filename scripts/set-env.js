@@ -11,7 +11,7 @@ if (!fs.existsSync(dir)) {
 
 const envConfigFile = `export const environment = {
   production: true,
-  apiUrl: 'https://journey2gethere.byethost8.com/travel-agency-backend/api',
+  apiUrl: 'https://travel-agency-backend-2026.up.railway.app/api',
   paystackPublicKey: '${process.env.PAYSTACK_PUBLIC_KEY || ''}'
 };
 
