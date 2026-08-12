@@ -11,7 +11,7 @@ if (!fs.existsSync(dir)) {
 
 const envConfigFile = `export const environment = {
   production: true,
-  apiUrl: '${process.env.API_URL || 'http://localhost/travel-agency-backend/api'}',
+  apiUrl: 'http://localhost/travel-agency-backend/api',
   paystackPublicKey: '${process.env.PAYSTACK_PUBLIC_KEY || ''}'
 };
 
