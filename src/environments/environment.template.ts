@@ -1,6 +1,6 @@
 // src/environments/environment.template.ts
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost/travel-agency-backend/api',
+  apiUrl: 'https://journey2gethere.byethost8.com/travel-agency-backend/api/',
   paystackPublicKey: 'pk_test_sample_key',
 };
