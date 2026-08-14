@@ -38,11 +38,35 @@ export class PackageManagerComponent implements OnInit {
   pageSize = signal<number>(10);
   totalItems = signal<number>(0);
 
+  // Destinations & Inline Edit
+  destinations = signal<Array<{ id: number; name: string; country: string }>>([]);
+  editingId = signal<number | null>(null);
+
+  editForm = {
+    title: '',
+    destination_id: 0,
+    basePrice: 0,
+    maxCapacity: 30,
+  };
+
   constructor(private packageService: PackageService) {}
 
   ngOnInit(): void {
     this.fetchPackages();
   }
+
+  private safeParseInt(val: any, fallback: number = 0): number {
+    if (val === null || val === undefined) return fallback;
+    const parsed = parseInt(String(val), 10);
+    return isNaN(parsed) ? fallback : parsed;
+  }
+
+  private safeParseFloat(val: any, fallback: number = 0): number {
+    if (val === null || val === undefined) return fallback;
+    const parsed = parseFloat(String(val).replace(/[^0-9.-]+/g, ''));
+    return isNaN(parsed) ? fallback : parsed;
+  }
+
   fetchPackages(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -56,26 +80,45 @@ export class PackageManagerComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           this.isLoading.set(false);
-          const rawData = response.data || [];
+          const rawData = response.data?.items || response.data || [];
 
           const mappedPackages: PackageItem[] = rawData.map((item: any) => {
-            const destName = item.destination?.name || item.destination_name || '';
-            const destCountry = item.destination?.country || item.destination_country || '';
-            const locationStr = [destName, destCountry].filter(Boolean).join(', ') || 'N/A';
+            const destName = item.destination?.city || item.destination_name || item.city || '';
+            const destCountry =
+              item.destination?.country || item.destination_country || item.country || '';
+            const locationStr = [destName, destCountry].filter(Boolean).join(', ') || 'Global';
+
+            // 1. Calculate capacity from schedules if present, or fallback
+            const capacity = this.safeParseInt(
+              item.total_capacity ?? item.max_capacity ?? item.total_seats ?? 30,
+              30,
+            );
+
+            // 2. Calculate booked seats from (total_seats - available_seats) or booked_seats
+            let booked = 0;
+            if (item.booked_seats !== undefined && item.booked_seats !== null) {
+              booked = this.safeParseInt(item.booked_seats, 0);
+            } else if (item.total_seats !== undefined && item.available_seats !== undefined) {
+              booked = Math.max(
+                0,
+                this.safeParseInt(item.total_seats) - this.safeParseInt(item.available_seats),
+              );
+            } else {
+              booked = this.safeParseInt(item.seats_booked ?? 0, 0);
+            }
 
             return {
               id: item.id,
               title: item.title || 'Untitled Package',
               image:
-                item.cover_photo || item.cover_image || 'assets/images/placeholder-package.jpg',
+                item.cover_photo || item.thumbnail_url || 'assets/images/placeholder-package.jpg',
               location: locationStr,
-              basePrice: parseFloat(item.base_price || item.price || 0),
-              bookedSeats: item.booked_seats || item.bookedSeats || 0,
-              totalCapacity: item.total_capacity || item.max_capacity || 30,
+              basePrice: this.safeParseFloat(item.base_price ?? item.price ?? 0),
+              bookedSeats: booked,
+              totalCapacity: capacity > 0 ? capacity : 1,
               status: item.status || 'draft',
-              // Preserve fields required for validation on PUT requests
-              destination_id: item.destination_id || item.destination?.id || 0,
-              duration_days: parseInt(item.duration_days || 1, 10),
+              destination_id: this.safeParseInt(item.destination_id ?? item.destination?.id ?? 0),
+              duration_days: this.safeParseInt(item.duration_days ?? 1, 1),
               description: item.description || item.title || '',
             };
           });
@@ -91,6 +134,15 @@ export class PackageManagerComponent implements OnInit {
           this.errorMessage.set(err?.error?.message || 'Failed to load package inventory.');
         },
       });
+  }
+
+  /**
+   * Helper method to compute Occupancy / Occupation Percentage
+   */
+  getOccupancyRate(pkg: PackageItem): number {
+    if (!pkg || !pkg.totalCapacity || pkg.totalCapacity <= 0) return 0;
+    const rate = Math.round((pkg.bookedSeats / pkg.totalCapacity) * 100);
+    return Math.min(Math.max(rate, 0), 100); // Clamp between 0% and 100%
   }
 
   onSearchChange(query: string): void {
@@ -126,7 +178,6 @@ export class PackageManagerComponent implements OnInit {
 
     this.packageService.deletePackage(pkg.id).subscribe({
       next: () => {
-        // Remove item locally or refetch
         this.packages.update((items) => items.filter((p) => p.id !== pkg.id));
       },
       error: (err: any) => {
@@ -135,18 +186,6 @@ export class PackageManagerComponent implements OnInit {
     });
   }
 
-  // 1. In Component Class
-  destinations = signal<Array<{ id: number; name: string; country: string }>>([]);
-  editingId = signal<number | null>(null);
-
-  editForm = {
-    title: '',
-    destination_id: 0,
-    basePrice: 0,
-    maxCapacity: 30,
-  };
-
-  // 2. Start Editing Method
   startInlineEdit(pkg: PackageItem): void {
     this.editingId.set(pkg.id);
     this.editForm = {
@@ -157,7 +196,6 @@ export class PackageManagerComponent implements OnInit {
     };
   }
 
-  // 3. Save Editing Method
   saveInlineEdit(pkg: PackageItem): void {
     const pkgId = pkg.id;
 
@@ -172,7 +210,6 @@ export class PackageManagerComponent implements OnInit {
 
     this.packageService.updatePackage(pkgId, payload).subscribe({
       next: () => {
-        // Find destination name to update the display label
         const selectedDest = this.destinations().find(
           (d) => d.id === Number(this.editForm.destination_id),
         );
@@ -201,7 +238,13 @@ export class PackageManagerComponent implements OnInit {
       },
     });
   }
-
+  getOccupancyPercentage(pkg: PackageItem): number {
+    if (!pkg || !pkg.totalCapacity || pkg.totalCapacity <= 0) return 0;
+    const booked = Number(pkg.bookedSeats) || 0;
+    const capacity = Number(pkg.totalCapacity) || 1;
+    const percentage = Math.round((booked / capacity) * 100);
+    return Math.min(Math.max(percentage, 0), 100);
+  }
   cancelInlineEdit(): void {
     this.editingId.set(null);
   }

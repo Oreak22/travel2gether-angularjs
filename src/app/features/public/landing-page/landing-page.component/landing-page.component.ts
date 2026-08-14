@@ -64,6 +64,7 @@ export class LandingPageComponent implements OnInit {
           rating: pkg.rating || '4.9',
           price: pkg.base_price || pkg.price || '0.00',
           image:
+            pkg.cover_photo ||
             pkg.cover_image ||
             pkg.image ||
             'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600',

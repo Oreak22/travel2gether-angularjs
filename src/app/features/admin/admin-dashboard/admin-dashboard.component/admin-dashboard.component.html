@@ -1,10 +1,33 @@
 <div class="space-y-8">
+  <!-- Dynamic Action Toast Banner -->
+  @if (actionMessage(); as msg) {
+    <div
+      [class]="
+        msg.type === 'success'
+          ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+          : 'bg-rose-50 border-rose-200 text-rose-800'
+      "
+      class="flex items-center justify-between p-4 rounded-xl border text-xs font-bold transition-all shadow-xs"
+    >
+      <div class="flex items-center space-x-2">
+        <lucide-icon
+          [name]="msg.type === 'success' ? 'circle-check' : 'circle-alert'"
+          class="w-4 h-4"
+        ></lucide-icon>
+        <span>{{ msg.text }}</span>
+      </div>
+      <button (click)="actionMessage.set(null)" class="text-slate-400 hover:text-slate-600">
+        <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
+      </button>
+    </div>
+  }
+
   <!-- Top Title & Quick Actions Bar -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
       <h1 class="text-2xl font-black text-[#0F172A]">Dashboard Overview</h1>
       <p class="text-xs text-slate-500">
-        Welcome back, Sarah. Here is what is happening across Journey2gether today.
+        Real-time performance and operations across Journey2gether.
       </p>
     </div>
     <div class="flex items-center space-x-3">
@@ -18,92 +41,211 @@
 
   <!-- KPI Summary Cards Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-    @for (stat of stats(); track stat.label) {
-      <app-card>
-        <div class="p-5 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{
-              stat.label
-            }}</span>
-            <div [class]="stat.iconBg + ' p-2 rounded-lg text-white'">
-              <lucide-icon [name]="stat.icon" class="w-4 h-4"></lucide-icon>
+    @if (isLoading()) {
+      @for (i of [1, 2, 3, 4]; track i) {
+        <app-card>
+          <div class="p-5 space-y-3 animate-pulse">
+            <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+            <div class="h-8 bg-slate-200 rounded w-3/4"></div>
+          </div>
+        </app-card>
+      }
+    } @else {
+      @for (stat of stats(); track stat.label) {
+        <app-card>
+          <div class="p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{
+                stat.label
+              }}</span>
+              <div [class]="stat.iconBg + ' p-2 rounded-lg text-white'">
+                <lucide-icon [name]="stat.icon" class="w-4 h-4"></lucide-icon>
+              </div>
+            </div>
+            <div class="flex items-baseline justify-between">
+              <span class="text-2xl font-black text-[#0F172A]">{{ stat.value }}</span>
+              <span
+                [class]="
+                  stat.isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'
+                "
+                class="text-[11px] font-bold px-2 py-0.5 rounded-full"
+              >
+                {{ stat.change }}
+              </span>
             </div>
           </div>
-          <div class="flex items-baseline justify-between">
-            <span class="text-2xl font-black text-[#0F172A]">{{ stat.value }}</span>
-            <span
-              [class]="
-                stat.isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'
-              "
-              class="text-[11px] font-bold px-2 py-0.5 rounded-full"
-            >
-              {{ stat.change }}
-            </span>
-          </div>
-        </div>
-      </app-card>
+        </app-card>
+      }
     }
   </div>
 
-  <!-- Recent Bookings Table Panel -->
-  <div
-    class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden space-y-4 p-6"
-  >
-    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-      <div>
-        <h2 class="text-base font-bold text-[#0F172A]">Recent Bookings</h2>
-        <p class="text-xs text-slate-500">
-          Latest reservations placed across all public travel packages
-        </p>
+  <!-- Section Split Grid: Bookings & Quick Package Status -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Bookings Table Panel (2 Columns wide on desktop) -->
+    <div
+      class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden space-y-4 p-6"
+    >
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div>
+          <h2 class="text-base font-bold text-[#0F172A]">Recent Bookings</h2>
+          <p class="text-xs text-slate-500">Latest reservations placed across travel packages</p>
+        </div>
+        <a routerLink="/admin/bookings" class="text-xs font-bold text-[#0EA5E9] hover:underline">
+          View All Bookings
+        </a>
       </div>
-      <a routerLink="/admin/bookings" class="text-xs font-bold text-[#0EA5E9] hover:underline"
-        >View All Bookings</a
-      >
+
+      <!-- Table View -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead
+            class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider font-bold border-b border-slate-200"
+          >
+            <tr>
+              <th class="py-3 px-4">Booking Ref</th>
+              <th class="py-3 px-4">Customer</th>
+              <th class="py-3 px-4">Package</th>
+              <th class="py-3 px-4">Amount</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-700">
+            @if (isLoading()) {
+              @for (i of [1, 2, 3]; track i) {
+                <tr class="animate-pulse">
+                  <td class="py-4 px-4"><div class="h-3 bg-slate-200 rounded w-16"></div></td>
+                  <td class="py-4 px-4"><div class="h-3 bg-slate-200 rounded w-24"></div></td>
+                  <td class="py-4 px-4"><div class="h-3 bg-slate-200 rounded w-28"></div></td>
+                  <td class="py-4 px-4"><div class="h-3 bg-slate-200 rounded w-12"></div></td>
+                  <td class="py-4 px-4"><div class="h-3 bg-slate-200 rounded w-16"></div></td>
+                  <td class="py-4 px-4 text-right">
+                    <div class="h-3 bg-slate-200 rounded w-8 ml-auto"></div>
+                  </td>
+                </tr>
+              }
+            } @else if (recentBookings().length === 0) {
+              <tr>
+                <td colspan="6" class="py-8 text-center text-slate-400">
+                  No recent bookings found.
+                </td>
+              </tr>
+            } @else {
+              @for (booking of recentBookings(); track booking.id) {
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3.5 px-4 font-bold text-slate-900">#{{ booking.id }}</td>
+                  <td class="py-3.5 px-4">
+                    <p class="font-bold text-slate-900">{{ booking.customerName }}</p>
+                    <p class="text-[10px] text-slate-400">{{ booking.customerEmail }}</p>
+                  </td>
+                  <td class="py-3.5 px-4 font-medium">{{ booking.packageName }}</td>
+                  <td class="py-3.5 px-4 font-black text-slate-900">
+                    ${{ booking.amount | number: '1.2-2' }}
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <app-badge [variant]="statusVariant(booking.status)">
+                      {{ booking.status }}
+                    </app-badge>
+                  </td>
+                  <td class="py-3.5 px-4 text-right">
+                    <div class="flex items-center justify-end space-x-1">
+                      <!-- Verify Paystack Payment -->
+                      @if (booking.reference) {
+                        <button
+                          (click)="verifyPayment(booking)"
+                          [disabled]="booking.isUpdating"
+                          title="Verify Paystack Transaction"
+                          class="p-1.5 text-slate-500 hover:text-sky-600 rounded-lg hover:bg-slate-100 disabled:opacity-50"
+                        >
+                          <lucide-icon name="shield-check" class="w-4 h-4"></lucide-icon>
+                        </button>
+                      }
+
+                      <!-- Quick Status Actions -->
+                      @if (booking.status === 'pending') {
+                        <button
+                          (click)="changeBookingStatus(booking, 'confirmed')"
+                          [disabled]="booking.isUpdating"
+                          title="Confirm Booking"
+                          class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg disabled:opacity-50"
+                        >
+                          <lucide-icon name="check" class="w-4 h-4"></lucide-icon>
+                        </button>
+                        <button
+                          (click)="changeBookingStatus(booking, 'cancelled')"
+                          [disabled]="booking.isUpdating"
+                          title="Cancel Booking"
+                          class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg disabled:opacity-50"
+                        >
+                          <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Table View -->
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-xs">
-        <thead
-          class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider font-bold border-b border-slate-200"
-        >
-          <tr>
-            <th class="py-3 px-4">Booking ID</th>
-            <th class="py-3 px-4">Customer</th>
-            <th class="py-3 px-4">Package Name</th>
-            <th class="py-3 px-4">Departure</th>
-            <th class="py-3 px-4">Amount</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100 text-slate-700">
-          @for (booking of recentBookings(); track booking.id) {
-            <tr class="hover:bg-slate-50/80 transition-colors">
-              <td class="py-3.5 px-4 font-bold text-slate-900">#{{ booking.id }}</td>
-              <td class="py-3.5 px-4">
-                <p class="font-bold text-slate-900">{{ booking.customerName }}</p>
-                <p class="text-[10px] text-slate-400">{{ booking.customerEmail }}</p>
-              </td>
-              <td class="py-3.5 px-4 font-medium">{{ booking.packageName }}</td>
-              <td class="py-3.5 px-4 text-slate-500">{{ booking.departureDate }}</td>
-              <td class="py-3.5 px-4 font-black text-slate-900">\${{ booking.amount }}</td>
-              <td class="py-3.5 px-4">
-                <app-badge [variant]="statusVariant(booking.status)">{{
-                  booking.status
-                }}</app-badge>
-              </td>
-              <td class="py-3.5 px-4 text-right">
-                <button
-                  class="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-100"
-                >
-                  <lucide-icon name="ellipsis" class="w-4 h-4"></lucide-icon>
-                </button>
-              </td>
-            </tr>
+    <!-- Active Tour Packages Quick Panel (1 Column wide on desktop) -->
+    <div
+      class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4 flex flex-col justify-between"
+    >
+      <div>
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+          <div>
+            <h2 class="text-base font-bold text-[#0F172A]">Tour Packages</h2>
+            <p class="text-xs text-slate-500">Live package listings</p>
+          </div>
+          <a routerLink="/admin/packages" class="text-xs font-bold text-[#0EA5E9] hover:underline">
+            Manage
+          </a>
+        </div>
+
+        <div class="space-y-3">
+          @if (recentPackages().length === 0) {
+            <p class="text-xs text-slate-400 py-4 text-center">No tour packages available.</p>
+          } @else {
+            @for (pkg of recentPackages(); track pkg.id) {
+              <div
+                class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition-all bg-slate-50/50"
+              >
+                <div class="space-y-0.5">
+                  <p class="text-xs font-bold text-slate-900 truncate max-w-[150px]">
+                    {{ pkg.title }}
+                  </p>
+                  <p class="text-[10px] font-medium text-slate-400">
+                    {{ pkg.destination }} • ${{ pkg.price | number: '1.2-2' }}
+                  </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <app-badge [variant]="statusVariant(pkg.status)">
+                    {{ pkg.status }}
+                  </app-badge>
+                  <button
+                    (click)="togglePackageStatus(pkg)"
+                    title="Toggle Active/Inactive"
+                    class="p-1 text-slate-400 hover:text-slate-800 rounded hover:bg-slate-200/60"
+                  >
+                    <lucide-icon name="power" class="w-3.5 h-3.5"></lucide-icon>
+                  </button>
+                </div>
+              </div>
+            }
           }
-        </tbody>
-      </table>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100">
+        <a routerLink="/admin/packages/create" class="w-full">
+          <app-button variant="outline" size="sm" class="w-full flex justify-center">
+            <lucide-icon name="plus" class="w-4 h-4 mr-1.5"></lucide-icon> Create New Tour
+          </app-button>
+        </a>
+      </div>
     </div>
   </div>
 </div>

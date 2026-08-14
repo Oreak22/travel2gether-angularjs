@@ -137,16 +137,23 @@
                       />
                     </div>
                   } @else {
-                    <div class="flex items-center space-x-2">
-                      <span class="font-bold text-slate-800">
-                        {{ pkg.bookedSeats }}/{{ pkg.totalCapacity }}
-                      </span>
-                      <div class="w-20 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div class="flex flex-col space-y-1">
+                      <div class="flex items-center justify-between space-x-2">
+                        <span class="font-bold text-slate-800">
+                          {{ pkg.bookedSeats }}/{{ pkg.totalCapacity }}
+                        </span>
+                        <span class="text-[10px] font-semibold text-slate-500">
+                          {{ getOccupancyPercentage(pkg) }}%
+                        </span>
+                      </div>
+                      <div class="w-28 bg-slate-100 h-2 rounded-full overflow-hidden">
                         <div
-                          class="bg-[#0EA5E9] h-full transition-all duration-300"
-                          [style.width.%]="
-                            pkg.totalCapacity > 0 ? (pkg.bookedSeats / pkg.totalCapacity) * 100 : 0
-                          "
+                          class="h-full transition-all duration-300 rounded-full"
+                          [ngClass]="{
+                            'bg-amber-500': getOccupancyPercentage(pkg) >= 80,
+                            'bg-[#0EA5E9]': getOccupancyPercentage(pkg) < 80,
+                          }"
+                          [style.width.%]="getOccupancyPercentage(pkg)"
                         ></div>
                       </div>
                     </div>

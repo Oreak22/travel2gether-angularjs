@@ -8,6 +8,39 @@ import { PackageService } from '../../../../core/services/package.service';
 import { ButtonComponent } from '../../../../shared/components/button/button.component/button.component';
 import { BadgeComponent } from '../../../../shared/components/badge/badge.component.ts/badge.component.ts';
 
+export interface ScheduleItem {
+  id: number;
+  start_date: string;
+  end_date: string;
+  total_seats: number;
+  available_seats: number;
+  booked_seats: number;
+  price: number;
+  status: string;
+}
+
+export interface DetailedPackage {
+  id: number;
+  title: string;
+  description: string;
+  base_price: number;
+  duration_days: number;
+  status: string;
+  total_capacity: number;
+  booked_seats: number;
+  occupancy_rate: number;
+  destination: {
+    id: number;
+    name: string;
+    country: string;
+    description?: string;
+  };
+  schedules: ScheduleItem[];
+  itineraries: any[];
+  photos: any[];
+  cover_photo?: string;
+}
+
 @Component({
   selector: 'app-package-detail',
   standalone: true,
@@ -25,12 +58,12 @@ import { BadgeComponent } from '../../../../shared/components/badge/badge.compon
 export class PackageDetailComponent implements OnInit {
   openDay = signal<number>(1);
   isLoading = signal<boolean>(true);
-  packageData = signal<any>(null);
+  packageData = signal<DetailedPackage | null>(null);
   selectedScheduleId = signal<number | null>(null);
   errorMessage = signal<string | null>(null);
 
   itinerary = signal<any[]>([]);
-  schedules = signal<any[]>([]);
+  schedules = signal<ScheduleItem[]>([]);
 
   constructor(
     private route: ActivatedRoute,
@@ -64,6 +97,7 @@ export class PackageDetailComponent implements OnInit {
         }
 
         this.packageData.set(data);
+        console.log(data);
 
         // Map Itineraries
         const rawItineraries = data.itineraries || [];
@@ -112,5 +146,14 @@ export class PackageDetailComponent implements OnInit {
 
   selectSchedule(scheduleId: number): void {
     this.selectedScheduleId.set(scheduleId);
+  }
+
+  /**
+   * Returns current schedule occupancy percentage
+   */
+  getScheduleOccupancy(schedule: ScheduleItem): number {
+    if (!schedule || !schedule.total_seats || schedule.total_seats <= 0) return 0;
+    const booked = schedule.booked_seats ?? schedule.total_seats - schedule.available_seats;
+    return Math.round((booked / schedule.total_seats) * 100);
   }
 }
