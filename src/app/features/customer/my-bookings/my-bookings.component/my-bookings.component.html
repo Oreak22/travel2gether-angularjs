@@ -69,7 +69,7 @@
               Total Paid
             </span>
             <span class="text-base font-black text-[#0F172A] whitespace-nowrap">
-              ${{ booking.amount | number: '1.2-2' }}
+              ₦{{ booking.amount | number: '1.2-2' }}
             </span>
           </div>
 
@@ -148,7 +148,7 @@
           </div>
           <div class="flex justify-between pt-2 border-t border-slate-200 font-black text-sm">
             <span>Amount Paid:</span>
-            <span class="text-[#0EA5E9]">${{ receipt.amount | number: '1.2-2' }}</span>
+            <span class="text-[#0EA5E9]">₦{{ receipt.amount | number: '1.2-2' }}</span>
           </div>
         </div>
 

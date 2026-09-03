@@ -252,9 +252,7 @@
             >
               <div>
                 <span class="text-3xl font-black text-[#0F172A]">
-                  ${{
-                    packageData()?.base_price || packageData()?.base_price || 0 | number: '1.2-2'
-                  }}
+                  ₦{{ packageData()?.base_price || 0 | number: '1.2-2' }}
                 </span>
                 <span class="text-xs text-slate-500"> / person</span>
 
@@ -292,7 +290,7 @@
                             {{ schedule.end_date | date: 'mediumDate' }}
                           </span>
                           <span class="text-xs font-black text-[#0EA5E9]">
-                            ${{ schedule.price | number: '1.2-2' }}
+                            ₦{{ schedule.price | number: '1.2-2' }}
                           </span>
                         </div>
 

@@ -56,16 +56,17 @@ export class MyBookingsComponent implements OnInit {
     this.bookingService.getMyBookings().subscribe({
       next: (res) => {
         const rawData = res.data || [];
+        console.log(res);
         const mapped: Booking[] = rawData.map((b: any) => ({
           id: b.booking_reference || `J2G-${b.id}`,
           numericId: b.id,
           packageTitle: b.package_title || b.title || 'Tour Experience',
           image:
-            b.cover_image || 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=200',
+            b.cover_photo || 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=200',
           dates: b.start_date ? `${b.start_date} - ${b.end_date}` : 'Scheduled Tour',
           guests: b.seats_booked || b.guests || 1,
 
-          // 💥 FIX 1: Map b.total_amount returned by BookingController
+          //  FIX 1: Map b.total_amount returned by BookingController
           amount: b.total_amount || b.total_price || b.amount || '0.00',
           status: b.status || 'pending',
           paystackRef: b.payment_reference || b.transaction_ref || 'N/A',
@@ -83,7 +84,7 @@ export class MyBookingsComponent implements OnInit {
   }
 
   /**
-   * 💥 FIX 2: Added payment initialization handler for pending bookings
+   *  FIX 2: Added payment initialization handler for pending bookings
    */
   payNow(booking: Booking): void {
     if (!booking || booking.numericId <= 0) return;

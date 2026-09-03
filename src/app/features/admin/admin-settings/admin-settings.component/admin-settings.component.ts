@@ -36,7 +36,7 @@ export class AdminSettingsComponent implements OnInit {
     this.settingsForm = this.fb.group({
       paystackPublicKey: ['', Validators.required],
       paystackSecretKey: ['', Validators.required],
-      currency: ['USD ($)', Validators.required],
+      currency: ['NGN (₦)', Validators.required],
       supportEmail: ['', [Validators.required, Validators.email]],
     });
   }
@@ -53,7 +53,7 @@ export class AdminSettingsComponent implements OnInit {
         this.settingsForm.patchValue({
           paystackPublicKey: settings.paystack_public_key || settings.paystackPublicKey || '',
           paystackSecretKey: settings.paystack_secret_key || settings.paystackSecretKey || '',
-          currency: settings.currency || 'USD ($)',
+          currency: settings.currency || 'NGN (₦)',
           supportEmail:
             settings.support_email || settings.supportEmail || 'support@journey2gether.com',
         });
@@ -64,7 +64,7 @@ export class AdminSettingsComponent implements OnInit {
         this.settingsForm.patchValue({
           paystackPublicKey: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx',
           paystackSecretKey: 'sk_test_xxxxxxxxxxxxxxxxxxxxxxxx',
-          currency: 'USD ($)',
+          currency: 'NGN (₦)',
           supportEmail: 'support@journey2gether.com',
         });
         this.isLoading.set(false);

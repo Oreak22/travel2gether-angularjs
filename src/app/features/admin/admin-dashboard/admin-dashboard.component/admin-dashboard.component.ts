@@ -52,7 +52,14 @@ export interface PackageSummary {
 @Component({
   selector: 'app-admin-dashboard.component',
   standalone: true,
-  imports: [CommonModule, RouterLink, CardComponent, BadgeComponent, ButtonComponent, LucideAngularModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    CardComponent,
+    BadgeComponent,
+    ButtonComponent,
+    LucideAngularModule,
+  ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
 })
@@ -160,7 +167,7 @@ export class AdminDashboardComponent implements OnInit {
     this.stats.set([
       {
         label: 'Total Revenue',
-        value: `$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: `₦${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         change: 'Live Total',
         isPositive: true,
         icon: 'dollar-sign',
@@ -273,7 +280,7 @@ export class AdminDashboardComponent implements OnInit {
     this.stats.set([
       {
         label: 'Total Revenue',
-        value: '$0.00',
+        value: '₦0.00',
         change: '0.0%',
         isPositive: true,
         icon: 'dollar-sign',

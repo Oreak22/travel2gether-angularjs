@@ -140,7 +140,7 @@
                   </td>
                   <td class="py-3.5 px-4 font-medium">{{ booking.packageName }}</td>
                   <td class="py-3.5 px-4 font-black text-slate-900">
-                    ${{ booking.amount | number: '1.2-2' }}
+                    ₦{{ booking.amount | number: '1.2-2' }}
                   </td>
                   <td class="py-3.5 px-4">
                     <app-badge [variant]="statusVariant(booking.status)">
@@ -218,7 +218,7 @@
                     {{ pkg.title }}
                   </p>
                   <p class="text-[10px] font-medium text-slate-400">
-                    {{ pkg.destination }} • ${{ pkg.price | number: '1.2-2' }}
+                    {{ pkg.destination }} • ₦{{ pkg.price | number: '1.2-2' }}
                   </p>
                 </div>
                 <div class="flex items-center space-x-2">

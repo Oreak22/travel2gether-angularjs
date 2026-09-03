@@ -215,22 +215,22 @@
 
         <div class="space-y-2 text-xs text-slate-600 pt-3 border-t border-slate-100">
           <div class="flex justify-between">
-            <span>Base Price ($1,299 × {{ guestCount() }})</span>
+            <span>Base Price (₦1,299 × {{ guestCount() }})</span>
             <span class="font-semibold text-slate-900"
-              >${{ 1299 * guestCount() | number: '1.2-2' }}</span
+              >₦{{ 1299 * guestCount() | number: '1.2-2' }}</span
             >
           </div>
           <div class="flex justify-between">
             <span>Taxes & Service Fees (10%)</span>
             <span class="font-semibold text-slate-900"
-              >${{ 1299 * guestCount() * 0.1 | number: '1.2-2' }}</span
+              >₦{{ 1299 * guestCount() * 0.1 | number: '1.2-2' }}</span
             >
           </div>
           <div
             class="flex justify-between pt-2 border-t border-slate-200 text-sm font-black text-[#0F172A]"
           >
             <span>Total Amount</span>
-            <span class="text-[#0EA5E9]">${{ 1299 * guestCount() * 1.1 | number: '1.2-2' }}</span>
+            <span class="text-[#0EA5E9]">₦{{ 1299 * guestCount() * 1.1 | number: '1.2-2' }}</span>
           </div>
         </div>
 

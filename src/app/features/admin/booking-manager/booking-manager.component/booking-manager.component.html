@@ -93,7 +93,7 @@
               <td class="py-3.5 px-4 font-bold text-slate-800">{{ b.packageTitle }}</td>
               <td class="py-3.5 px-4 font-semibold text-slate-700">{{ b.guestsCount }} guest(s)</td>
               <td class="py-3.5 px-4 font-black text-slate-900">
-                ${{ b.totalPaid | number: '1.2-2' }}
+                ₦{{ b.totalPaid | number: '1.2-2' }}
               </td>
               <td class="py-3.5 px-4">
                 <app-badge [variant]="statusVariant(b.status)">{{ b.status }}</app-badge>
@@ -184,7 +184,7 @@
             <div>
               <span class="text-[10px] text-slate-400 font-bold block">Total Amount</span>
               <span class="text-base font-black text-slate-900"
-                >${{ b.totalPaid | number: '1.2-2' }}</span
+                >₦{{ b.totalPaid | number: '1.2-2' }}</span
               >
             </div>
             <div class="flex items-center space-x-2">
