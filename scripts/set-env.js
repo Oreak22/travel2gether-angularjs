@@ -12,7 +12,9 @@ if (!fs.existsSync(dir)) {
 const envConfigFile = `export const environment = {
   production: true,
   apiUrl: 'https://travel-agency-backend-2026.up.railway.app/api',
-  paystackPublicKey: '${process.env.PAYSTACK_PUBLIC_KEY || ''}'
+  paystackPublicKey: '${process.env.PAYSTACK_PUBLIC_KEY || ''}',
+  apple_client_id: 'com.yourcompany.app.service',
+  google_client_id: '99400717057-t9208kg83e46iqtj20oqpsicface4o70.apps.googleusercontent.com',
 };
 
 export default environment;

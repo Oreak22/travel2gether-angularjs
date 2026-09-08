@@ -59,12 +59,45 @@ export class AuthService {
     );
   }
 
+  /**
+   * Authenticate with Google ID token
+   */
+  googleLogin(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/google`, { id_token: idToken }).pipe(
+      tap((response) => {
+        if (response.data) {
+          this.setSession(response.data.token, response.data.user);
+        }
+      }),
+    );
+  }
+
+  /**
+   * Authenticate with Apple Identity token
+   * @param payload.identityToken - JWT token from Apple Sign In SDK
+   * @param payload.fullName - Optional full name (Apple only passes this on the user's FIRST sign in)
+   */
+  appleLogin(payload: { identityToken: string; fullName?: string }): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/apple`, {
+        identity_token: payload.identityToken,
+        full_name: payload.fullName,
+      })
+      .pipe(
+        tap((response) => {
+          if (response.data) {
+            this.setSession(response.data.token, response.data.user);
+          }
+        }),
+      );
+  }
+
   verifyOtp(payload: { email: string; otp: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/verify-email`, payload);
   }
+
   resendMail(payload: { email: string }): Observable<AuthResponse> {
     const params = new HttpParams().set('email', payload.email);
-
     return this.http.get<AuthResponse>(`${this.apiUrl}/resend-verification`, { params });
   }
 

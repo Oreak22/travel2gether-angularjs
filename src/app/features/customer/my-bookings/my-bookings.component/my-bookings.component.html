@@ -80,9 +80,16 @@
                 View Receipt
               </app-button>
             } @else if (booking.status === 'pending') {
-              <app-button variant="primary" size="sm" (clicked)="payNow(booking)">
-                Pay Now
-              </app-button>
+              <div class="text-left md:text-right min-w-[90px] shrink-0">
+                <span
+                  class="text-[10px] text-slate-400 font-semibold block uppercase tracking-wider"
+                >
+                  If failed Payment
+                </span>
+                <app-button variant="primary" size="sm" (clicked)="payNow(booking)">
+                  Pay Now
+                </app-button>
+              </div>
             }
           </div>
         </div>

@@ -1,11 +1,16 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/button/button.component/button.component';
 import { InputComponent } from '../../../../shared/components/input/input.component/input.component';
-import { AuthService } from '../../../../core/services/auth.service';
+import { AuthService, User } from '../../../../core/services/auth.service';
+import { environment } from '../../../../../environments/environment';
+
+declare const google: any;
+declare const AppleID: any;
+
 @Component({
   selector: 'app-auth-modal.component',
   imports: [
@@ -19,7 +24,10 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './auth-modal.component.html',
   styleUrl: './auth-modal.component.css',
 })
-export class AuthModalComponent {
+export class AuthModalComponent implements OnInit {
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
+
   activeTab = signal<'login' | 'register'>('login');
   showPassword = signal(false);
   isLoading = signal(false);
@@ -36,6 +44,155 @@ export class AuthModalComponent {
       fullName: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+  }
+  APPLE_CLIENT_ID = environment.apple_client_id;
+  GOOGLE_CLIENT_ID = environment.google_client_id;
+  ngOnInit(): void {
+    if (this.isBrowser) {
+      console.log('woked');
+      this.initGoogleAuth();
+      this.initAppleAuth();
+    }
+  }
+  private initAppleAuth(): void {
+    const checkAppleLoaded = setInterval(() => {
+      if (typeof AppleID !== 'undefined') {
+        clearInterval(checkAppleLoaded);
+        AppleID.auth.init({
+          clientId: this.APPLE_CLIENT_ID,
+          scope: 'name email',
+          redirectURI: 'https://yourdomain.com/auth/apple/callback', // Registered redirect URI in Apple Developer Console
+          usePopup: true,
+        });
+      }
+    }, 100);
+  }
+  private handleGoogleCredential(idToken: string): void {
+    this.isLoading.set(true);
+    this.authError.set(null);
+
+    this.authService.googleLogin(idToken).subscribe({
+      next: (response) => {
+        this.isLoading.set(false);
+        this.handleAuthSuccess(response.data?.user);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.authError.set(
+          err.error?.message || 'Unable to sign in with Google. Please try again.',
+        );
+      },
+    });
+  }
+  /**
+   * Initialize Google Identity Services SDK callback
+   */
+  // private initGoogleAuth(): void {
+  //   if (typeof google !== 'undefined' && google.accounts) {
+  //     google.accounts.id.initialize({
+  //       client_id: this.GOOGLE_CLIENT_ID,
+  //       callback: (response: any) => this.handleGoogleCredential(response.credential),
+  //     });
+  //   }
+  // }
+  private initGoogleAuth(): void {
+    const checkGoogleLoaded = setInterval(() => {
+      if (typeof google !== 'undefined' && google.accounts) {
+        clearInterval(checkGoogleLoaded);
+
+        // Enable FedCM explicitly
+        google.accounts.id.initialize({
+          client_id: this.GOOGLE_CLIENT_ID,
+          callback: (response: any) => this.handleGoogleCredential(response.credential),
+          use_fedcm_for_prompt: true, // Opt-in to FedCM
+        });
+      }
+    }, 100);
+  }
+  /**
+   * Handle Google OAuth Authentication
+   */
+  loginWithGoogle(): void {
+    if (!this.isBrowser) return;
+
+    if (typeof google === 'undefined' || !google.accounts) {
+      this.authError.set('Google Sign-In SDK is still loading. Please try again in a moment.');
+      return;
+    }
+
+    // Attempt prompt
+    google.accounts.id.prompt((notification: any) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        console.warn('One Tap suppressed or skipped:', notification.getNotDisplayedReason());
+
+        // Fallback: If One Tap is suppressed, open Google's account selector
+        google.accounts.id.renderButton(document.getElementById('hidden-google-btn')!, {
+          type: 'standard',
+          size: 'large',
+        });
+
+        // Trigger click on rendered fallback button
+        const hiddenBtn = document
+          .getElementById('hidden-google-btn')
+          ?.querySelector('div[role=button]') as HTMLElement;
+        if (hiddenBtn) {
+          hiddenBtn.click();
+        } else {
+          this.authError.set(
+            'Please enable third-party cookies or popups in your browser settings.',
+          );
+        }
+      }
+    });
+  }
+
+  /**
+   * Trigger Apple Sign-In SDK / Flow
+   */
+  async loginWithApple(): Promise<void> {
+    if (!this.isBrowser) return;
+
+    try {
+      if (typeof AppleID === 'undefined') {
+        this.authError.set('Apple Sign-In SDK is not loaded.');
+        return;
+      }
+
+      // Trigger Apple native web prompt
+      const data = await AppleID.auth.signIn();
+      const identityToken = data.authorization.id_token;
+
+      // Capture name if provided (Apple only returns this on FIRST sign-in)
+      let fullName: string | undefined;
+      if (data.user?.name) {
+        fullName = `${data.user.name.firstName || ''} ${data.user.name.lastName || ''}`.trim();
+      }
+
+      this.executeAppleAuth(identityToken, fullName);
+    } catch (error: any) {
+      if (error?.error !== 'popup_closed_by_user') {
+        this.authError.set('Apple Sign-In failed or was cancelled.');
+      }
+    }
+  }
+
+  /**
+   * Send Apple credentials to Backend
+   */
+  private executeAppleAuth(identityToken: string, fullName?: string): void {
+    this.isLoading.set(true);
+    this.authError.set(null);
+
+    this.authService.appleLogin({ identityToken, fullName }).subscribe({
+      next: (response) => {
+        this.isLoading.set(false);
+        this.handleAuthSuccess(response.data?.user);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.authError.set(err.error?.message || 'Unable to sign in with Apple. Please try again.');
+      },
     });
   }
 
@@ -90,24 +247,7 @@ export class AuthModalComponent {
       this.authService.login(credentials).subscribe({
         next: (response) => {
           this.isLoading.set(false);
-          const user = response.data?.user;
-          console.log(response.data?.user);
-          if (!user) {
-            this.authError.set('Login succeeded but user data is missing. Please try again.');
-            return;
-          }
-
-          if (user.is_email_verified === false || user.is_email_verified === 0) {
-            this.router.navigate(['/auth/verify']);
-            return;
-          }
-
-          if (user.role === 'admin') {
-            this.router.navigate(['/admin/dashboard']);
-            return;
-          }
-
-          this.router.navigate(['/packages']);
+          this.handleAuthSuccess(response.data?.user);
         },
         error: (err) => {
           this.isLoading.set(false);
@@ -143,5 +283,27 @@ export class AuthModalComponent {
         );
       },
     });
+  }
+
+  /**
+   * Centralized navigation logic upon successful authentication
+   */
+  private handleAuthSuccess(user: User | undefined): void {
+    if (!user) {
+      this.authError.set('Authentication succeeded but user data is missing. Please try again.');
+      return;
+    }
+
+    if (user.is_email_verified === false || user.is_email_verified === 0) {
+      this.router.navigate(['/auth/verify']);
+      return;
+    }
+
+    if (user.role === 'admin') {
+      this.router.navigate(['/admin/dashboard']);
+      return;
+    }
+
+    this.router.navigate(['/packages']);
   }
 }
