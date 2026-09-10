@@ -44,7 +44,7 @@ export class PackageCatalogComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
       this.searchQuery = params.get('search') || '';
-      this.maxPrice = Number(params.get('max_price') || 5000);
+      this.maxPrice = Number(params.get('max_price') || 10000000);
       this.selectedCategory.set(params.get('category') || 'All Experiences');
       this.fetchPackages();
     });
