@@ -28,7 +28,7 @@ export class PackageCatalogComponent implements OnInit {
   isMobileFilterOpen = signal(false);
   isLoading = signal(true);
   searchQuery = '';
-  maxPrice = 5000;
+  maxPrice = 10000000;
   selectedCategory = signal('All Experiences');
   errorMessage = signal<string | null>(null);
   skeletonCards = Array.from({ length: 6 });
