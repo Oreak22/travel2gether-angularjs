@@ -103,7 +103,7 @@ export class PackageCatalogComponent implements OnInit {
       relativeTo: this.route,
       queryParams: {
         search: this.searchQuery || null,
-        max_price: this.maxPrice !== 5000 ? this.maxPrice : null,
+        max_price: this.maxPrice !== 10000000 ? this.maxPrice : null,
         category: this.selectedCategory() !== 'All Experiences' ? this.selectedCategory() : null,
       },
       queryParamsHandling: 'merge',
@@ -125,7 +125,7 @@ export class PackageCatalogComponent implements OnInit {
 
   resetFilters(): void {
     this.searchQuery = '';
-    this.maxPrice = 5000;
+    this.maxPrice = 10000000;
     this.selectedCategory.set('All Experiences');
     this.router.navigate([], {
       relativeTo: this.route,
