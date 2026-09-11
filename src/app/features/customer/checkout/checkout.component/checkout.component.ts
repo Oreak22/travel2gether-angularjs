@@ -201,7 +201,8 @@ export class CheckoutComponent implements OnInit {
         }
 
         // Step 2: Initialize Paystack gateway session
-        this.bookingService.initializePayment(bookingId).subscribe({
+        const callbackUrl = `${window.location.origin}/payment/confirm`;
+        this.bookingService.initializePayment(bookingId, callbackUrl).subscribe({
           next: (payRes) => {
             this.isLoading.set(false);
             const authUrl = payRes.data?.authorization_url || payRes.data?.payment_url;

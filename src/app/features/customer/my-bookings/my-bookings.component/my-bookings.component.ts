@@ -92,9 +92,9 @@ export class MyBookingsComponent implements OnInit {
     this.processingPaymentId.set(booking.numericId);
     this.errorMessage.set(null);
 
-    // const callbackUrl = `${window.location.origin}/payment/confirm`;
+    const callbackUrl = `${window.location.origin}/payment/confirm`;
 
-    this.bookingService.initializePayment(booking.numericId).subscribe({
+    this.bookingService.initializePayment(booking.numericId, callbackUrl).subscribe({
       next: (res) => {
         this.processingPaymentId.set(null);
         if (res.data?.authorization_url) {

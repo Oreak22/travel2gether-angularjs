@@ -30,8 +30,10 @@ export class BookingService {
     return this.http.patch<ApiResponse>(`${this.apiUrl}/${id}/cancel`, {});
   }
 
-  initializePayment(bookingId: number): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${this.paymentUrl}/initialize`, { booking_id: bookingId });
+  initializePayment(bookingId: number, callbackUrl?: string): Observable<ApiResponse> {
+    const payload: any = { booking_id: bookingId };
+    if (callbackUrl) payload.callback_url = callbackUrl;
+    return this.http.post<ApiResponse>(`${this.paymentUrl}/initialize`, payload);
   }
 
   verifyPayment(reference: string): Observable<ApiResponse> {
