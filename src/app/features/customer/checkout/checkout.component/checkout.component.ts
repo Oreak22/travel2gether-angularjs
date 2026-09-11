@@ -5,6 +5,8 @@ import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { BookingService } from '../../../../core/services/booking.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { PackageService } from '../../../../core/services/package.service';
 import { ButtonComponent } from '../../../../shared/components/button/button.component/button.component';
 import { InputComponent } from '../../../../shared/components/input/input.component/input.component';
 import { CardComponent } from '../../../../shared/components/card/card.component.ts/card.component.ts';
@@ -32,6 +34,9 @@ export class CheckoutComponent implements OnInit {
 
   scheduleId = signal<number | null>(null);
   packageId = signal<number | null>(null);
+  packageData = signal<any | null>(null);
+  unitPrice = signal<number>(0);
+  isPriceLoading = signal<boolean>(false);
 
   checkoutForm: FormGroup;
 
@@ -40,6 +45,8 @@ export class CheckoutComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private bookingService: BookingService,
+    private packageService: PackageService,
+    private authService: AuthService,
   ) {
     this.checkoutForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -58,6 +65,76 @@ export class CheckoutComponent implements OnInit {
     const pId = this.route.snapshot.queryParamMap.get('package_id');
     if (sId) this.scheduleId.set(Number(sId));
     if (pId) this.packageId.set(Number(pId));
+
+    // Fetch package details to determine real pricing
+    if (pId) {
+      this.fetchPackageDetails(Number(pId));
+    }
+
+    // If user returned from auth flow with saved pending booking, restore it
+    try {
+      const raw = localStorage.getItem('pending_booking_state');
+      if (raw) {
+        const state = JSON.parse(raw);
+        // Only restore if returning to checkout
+        if (state && state.returnUrl && state.returnUrl.includes('/checkout')) {
+          if (state.package_id) this.packageId.set(state.package_id);
+          if (state.schedule_id) this.scheduleId.set(state.schedule_id);
+          if (state.guest_count) this.guestCount.set(state.guest_count);
+          if (state.formValues) this.checkoutForm.patchValue(state.formValues);
+          // refetch pricing if package id was restored
+          if (state.package_id) this.fetchPackageDetails(state.package_id);
+        }
+        // Remove saved state after restoring
+        localStorage.removeItem('pending_booking_state');
+      }
+    } catch (e) {
+      // ignore JSON parse errors
+      localStorage.removeItem('pending_booking_state');
+    }
+  }
+
+  private savePendingBookingState(): void {
+    try {
+      const state = {
+        returnUrl: this.router.url,
+        package_id: this.packageId(),
+        schedule_id: this.scheduleId(),
+        guest_count: this.guestCount(),
+        formValues: this.checkoutForm.value,
+      };
+      localStorage.setItem('pending_booking_state', JSON.stringify(state));
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  fetchPackageDetails(id: number): void {
+    this.isPriceLoading.set(true);
+    this.packageService.getPackageById(id).subscribe({
+      next: (res) => {
+        const data = res.data || null;
+        this.packageData.set(data);
+
+        // Determine unit price: prefer schedule price, fallback to package base_price
+        let price = 0;
+        if (data) {
+          const schedules = data.schedules || [];
+          const sched = schedules.find((s: any) => s.id === this.scheduleId());
+          if (sched && typeof sched.price === 'number') {
+            price = sched.price;
+          } else if (typeof data.base_price === 'number') {
+            price = data.base_price;
+          }
+        }
+        this.unitPrice.set(price || 0);
+        this.isPriceLoading.set(false);
+      },
+      error: () => {
+        this.unitPrice.set(0);
+        this.isPriceLoading.set(false);
+      },
+    });
   }
 
   updateGuests(delta: number): void {
@@ -66,6 +143,13 @@ export class CheckoutComponent implements OnInit {
   }
 
   proceedToPayment(): void {
+    // If user not authenticated, save state and redirect to auth page
+    if (!this.authService.isAuthenticated()) {
+      this.savePendingBookingState();
+      this.router.navigate(['/auth'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
     if (this.checkoutForm.invalid) {
       this.checkoutForm.markAllAsTouched();
       return;
@@ -98,6 +182,11 @@ export class CheckoutComponent implements OnInit {
     const payload = {
       schedule_id: this.scheduleId(),
       passengers: passengersPayload,
+      guest_count: this.guestCount(),
+      unit_price: this.unitPrice(),
+      subtotal: this.unitPrice() * this.guestCount(),
+      tax: this.unitPrice() * this.guestCount() * 0.1,
+      total_amount: this.unitPrice() * this.guestCount() * 1.1,
     };
 
     // Step 1: Create atomic reservation

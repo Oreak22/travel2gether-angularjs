@@ -1,7 +1,7 @@
 import { Component, signal, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/button/button.component/button.component';
 import { InputComponent } from '../../../../shared/components/input/input.component/input.component';
@@ -38,6 +38,7 @@ export class AuthModalComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
   ) {
     this.authForm = this.fb.group({
@@ -62,7 +63,7 @@ export class AuthModalComponent implements OnInit {
         AppleID.auth.init({
           clientId: this.APPLE_CLIENT_ID,
           scope: 'name email',
-          redirectURI: 'https://yourdomain.com/auth/apple/callback', // Registered redirect URI in Apple Developer Console
+          redirectURI: '',
           usePopup: true,
         });
       }
@@ -296,6 +297,13 @@ export class AuthModalComponent implements OnInit {
 
     if (user.is_email_verified === false || user.is_email_verified === 0) {
       this.router.navigate(['/auth/verify']);
+      return;
+    }
+
+    // If a returnUrl query param is present, navigate back there (preserves pending booking state)
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
       return;
     }
 
